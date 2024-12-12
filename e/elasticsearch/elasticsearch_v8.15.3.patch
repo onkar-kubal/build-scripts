@@ -96,7 +96,7 @@ index 77f1a2d032c..50ddf950306 100644
            String platform = os + '-' + architecture
            if (architecture == 'x64') {
 diff --git a/distribution/docker/build.gradle b/distribution/docker/build.gradle
-index 85e66ccba34..ef22b0ee4c9 100644
+index 85e66ccba34..51c86365025 100644
 --- a/distribution/docker/build.gradle
 +++ b/distribution/docker/build.gradle
 @@ -95,13 +95,17 @@ configurations {
@@ -118,7 +118,16 @@ index 85e66ccba34..ef22b0ee4c9 100644
    dockerSource project(":distribution:archives:linux-tar")
    dockerSourceTar project(path: ":distribution:archives:linux-tar", configuration:"default")
    log4jConfig project(path: ":distribution", configuration: 'log4jConfig')
-@@ -155,7 +159,7 @@ private static String toCamel(String input) {
+@@ -111,6 +115,8 @@ dependencies {
+   filebeat_x86_64 "beats:filebeat:${VersionProperties.elasticsearch}:linux-x86_64@tar.gz"
+   metricbeat_aarch64 "beats:metricbeat:${VersionProperties.elasticsearch}:linux-arm64@tar.gz"
+   metricbeat_x86_64 "beats:metricbeat:${VersionProperties.elasticsearch}:linux-x86_64@tar.gz"
++  ppc64leDockerSource_aarch64 "beats:metricbeat:${VersionProperties.elasticsearch}:linux-arm64@tar.gz"
++  ppc64leDockerSource_x86_64 "beats:metricbeat:${VersionProperties.elasticsearch}:linux-x86_64@tar.gz"
+ }
+ 
+ ext.expansions = { Architecture architecture, DockerBase base ->
+@@ -155,7 +161,7 @@ private static String toCamel(String input) {
  
  private static String taskName(String prefix, Architecture architecture, DockerBase base, String suffix) {
    return prefix +
@@ -127,7 +136,7 @@ index 85e66ccba34..ef22b0ee4c9 100644
      (base == DockerBase.DEFAULT ? "" : toCamel(base.name())) +
      suffix
  }
-@@ -217,7 +221,7 @@ tasks.register("copyNodeKeyMaterial", Sync) {
+@@ -217,7 +223,7 @@ tasks.register("copyNodeKeyMaterial", Sync) {
  
  elasticsearch_distributions {
    Architecture.values().each { eachArchitecture ->
@@ -136,7 +145,7 @@ index 85e66ccba34..ef22b0ee4c9 100644
        architecture = eachArchitecture
        type = InternalElasticsearchDistributionTypes.DOCKER
        version = VersionProperties.getElasticsearch()
-@@ -281,7 +285,7 @@ tasks.named("composeUp").configure {
+@@ -281,7 +287,7 @@ tasks.named("composeUp").configure {
  
  void addBuildDockerContextTask(Architecture architecture, DockerBase base) {
    String configDirectory = base == DockerBase.IRON_BANK ? 'scripts' : 'config'
@@ -145,7 +154,7 @@ index 85e66ccba34..ef22b0ee4c9 100644
  
    final TaskProvider<Tar> buildDockerContextTask =
      tasks.register(taskName('build', architecture, base, 'DockerContext'), Tar) {
-@@ -327,7 +331,7 @@ void addTransformDockerContextTask(Architecture architecture, DockerBase base) {
+@@ -327,7 +333,7 @@ void addTransformDockerContextTask(Architecture architecture, DockerBase base) {
      TaskProvider<Tar> buildContextTask = tasks.named(taskName("build", architecture, base, "DockerContext"))
      dependsOn(buildContextTask)
  
@@ -154,7 +163,7 @@ index 85e66ccba34..ef22b0ee4c9 100644
      String archiveName = "elasticsearch${base.suffix}-${VersionProperties.elasticsearch}-docker-build-context${arch}"
      String distributionFolderName = "elasticsearch-${VersionProperties.elasticsearch}"
  
-@@ -448,7 +452,7 @@ void addBuildDockerImageTask(Architecture architecture, DockerBase base) {
+@@ -448,7 +454,7 @@ void addBuildDockerImageTask(Architecture architecture, DockerBase base) {
  
  void addBuildEssDockerImageTask(Architecture architecture) {
    DockerBase base = DockerBase.CLOUD_ESS
@@ -163,7 +172,7 @@ index 85e66ccba34..ef22b0ee4c9 100644
    String contextDir = "${project.buildDir}/docker-context/elasticsearch${base.suffix}-${VersionProperties.elasticsearch}-docker-build-context${arch}"
  
    final TaskProvider<Sync> buildContextTask =
-@@ -516,7 +520,7 @@ subprojects { Project subProject ->
+@@ -516,7 +522,7 @@ subprojects { Project subProject ->
    if (subProject.name.endsWith('-export')) {
      apply plugin: 'distribution'
  
@@ -172,7 +181,7 @@ index 85e66ccba34..ef22b0ee4c9 100644
      DockerBase base = DockerBase.DEFAULT
      if (subProject.name.contains('ubi-')) {
        base = DockerBase.UBI
-@@ -528,7 +532,7 @@ subprojects { Project subProject ->
+@@ -528,7 +534,7 @@ subprojects { Project subProject ->
        base = DockerBase.CLOUD
      }
  
